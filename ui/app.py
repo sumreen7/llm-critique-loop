@@ -2,7 +2,7 @@ import streamlit as st
 import sys
 import os
 
-sys.path.append(os.path.abspath("../src"))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src")))
 
 from loop import run_loop
 
@@ -16,9 +16,9 @@ if st.button("Run Critique Loop"):
 
     if prompt:
 
-        st.write("Running loop...")
+        with st.spinner("Running critique loop..."):
 
-        result = run_loop(prompt)
+            result = run_loop(prompt)
 
         st.subheader("Final Output")
         st.write(result)
