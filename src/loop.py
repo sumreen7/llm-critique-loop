@@ -8,17 +8,20 @@ def run_loop(prompt):
 
     answer = generate_answer(prompt)
 
-    for i in range(MAX_ITERATIONS):
+    history = []
 
-        print(f"\nIteration {i+1}")
+    for i in range(MAX_ITERATIONS):
 
         critique = critique_answer(prompt, answer)
 
-        print("Claude critique:", critique)
+        history.append({
+            "iteration": i+1,
+            "answer": answer,
+            "critique": critique
+        })
 
         if "approve" in critique.lower():
-            print("Approved by Claude")
-            return answer
+            break
 
         revision_prompt = f"""
 Original task:
