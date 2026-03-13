@@ -4,21 +4,20 @@ import os
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src")))
 
-from loop import run_loop
+from orchestrator import run_agents
 
-st.title("Multi-LLM Critique Loop")
+st.title("Multi-Agent AI Critique System")
 
-st.write("ChatGPT generates → Claude critiques → loop until approval")
+prompt = st.text_area("Enter task")
 
-prompt = st.text_area("Enter your prompt")
-
-if st.button("Run Critique Loop"):
+if st.button("Run AI System"):
 
     if prompt:
 
-        with st.spinner("Running critique loop..."):
+        with st.spinner("Running agents..."):
 
-            result = run_loop(prompt)
+            result = run_agents(prompt)
 
         st.subheader("Final Output")
+
         st.write(result)
