@@ -3,25 +3,29 @@ from utils import call_model
 MODEL = "openai/gpt-4o-mini"
 
 def editor(task, draft, critique):
-
     prompt = f"""
-You are a professional editor.
+You are an expert resume editor.
 
-Task:
+Original task:
 {task}
 
-Current Draft:
+Current draft:
 {draft}
 
 Critique:
 {critique}
 
-Improve the draft using ONLY the critique.
+Actively improve the resume based on the critique.
 
-Rules:
-- do not remove information
-- do not invent information
-- make minimal edits
+What you SHOULD do:
+- Strengthen weak bullet points
+- Add metrics where they can be reasonably inferred
+- Improve section structure if needed
+- Elevate language and tone
+
+What you must NOT do:
+- Invent jobs or companies
+- Remove real experience
+- Change actual dates or titles
 """
-
     return call_model(MODEL, prompt)
