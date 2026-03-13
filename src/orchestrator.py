@@ -6,21 +6,54 @@ from agents.judge import judge
 MAX_ITERATIONS = 6
 
 def run_agents(task):
+    # Parse JD and RESUME from structured input
+    if "RESUME:" in task and "JD:" in task:
+        parts = task.split("RESUME:", 1)
+        jd = parts[0].replace("JD:", "").strip()
+        original_resume = parts[1].strip()
+    else:
+        jd = task
+        original_resume = task
 
-    draft = writer(task)
+    history = []
+
+    print("\n=== WRITER: Generating initial draft ===")
+    draft = writer(jd, original_resume)
 
     for i in range(MAX_ITERATIONS):
+        print(f"\n=== ITERATION {i+1} ===")
 
-        critique = critic(task, draft)
+        critique = critic(jd, original_resume, draft)
+        score = critique.get("score", 0)
+        approved = critique.get("approved", False)
+        lang_score = critique.get("language_alignment_score", 0)
+        qual_score = critique.get("quality_score", 0)
 
-        draft = editor(task, draft, critique)
+        print(f"Score: {score}/10 | Language: {lang_score}/10 | Quality: {qual_score}/10")
+        print(f"Issues: {len(critique.get('issues', []))}")
+        print(f"Feedback: {critique.get('overall_feedback', '')[:300]}")
 
-        verdict = judge(task, draft)
+        history.append({
+            "iteration": i + 1,
+            "score": score,
+            "language_alignment_score": lang_score,
+            "quality_score": qual_score,
+            "issues_count": len(critique.get("issues", [])),
+            "feedback": critique.get("overall_feedback", ""),
+            "missing_keywords": critique.get("missing_jd_keywords", [])
+        })
 
-        print("Iteration:", i + 1)
-        print("Judge:", verdict)
+        if approved:
+            print("\n=== CRITIC APPROVED — Running final judge ===")
+            verdict = judge(jd, original_resume, draft)
+            print(f"Judge: {verdict}")
+            if verdict.get("approved"):
+                print("=== JUDGE APPROVED. DONE. ===")
+                break
+            else:
+                print(f"Judge rejected: {verdict.get('reason')}")
 
-        if verdict["approved"]:
-            break
+        print("\n=== EDITOR: Applying fixes ===")
+        draft = editor(jd, original_resume, draft, critique)
 
-    return draft
+    return draft, history
